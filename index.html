@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Notes</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Markdown-it CDN for Markdown rendering -->
+  <!-- <script src="https://cdn.bootcdn.net/ajax/libs/markdown-it/13.0.2/markdown-it.min.js"></script> -->
+  <script src="js/markdown-it.min.js"></script>
+  <!-- Pinyin-pro CDN for Pinyin conversion (using BootCDN) -->
+  <!-- <script src="https://cdn.bootcdn.net/ajax/libs/pinyin-pro/3.26.0/index.min.js"></script> -->
+  <script src="js/pinyin.min.js"></script>
+</head>
+<body>
+  <div id="app-container">
+    <div id="sidebar">
+      <h2>Notes</h2>
+      <input type="text" id="searchInput" placeholder="Search notes (支持拼音)">
+      <div id="noteList"></div>
+      <button id="addNewNoteButton">+ Add New Note</button>
+    </div>
+    <div id="main-content">
+      <div id="selectedNoteDisplay">
+        <div class="note-header">
+          <div id="noteTitleContainer">
+            <h2 id="displayNoteTitle"></h2>
+            <input type="text" id="editNoteTitleInput" class="hidden" />
+          </div>
+          <div class="note-actions">
+            <button id="deleteNoteButton">Delete</button>
+          </div>
+        </div>
+        
+        <!-- Rendered content view -->
+        <div id="renderedContent" class="note-content-rendered"></div>
+        
+        <!-- Markdown editor -->
+        <textarea id="editContent" class="note-content-editor hidden"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadingOverlay" class="hidden">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

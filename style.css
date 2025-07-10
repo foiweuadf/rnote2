@@ -1,0 +1,372 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif; /* Added Chinese fonts */
+  background-color: #2f3437; /* Dark background for Obsidian style */
+  color: #c8c8c8; /* Light text color */
+  display: flex;
+  overflow: hidden; /* Prevent main scrollbar */
+}
+
+#app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+#sidebar {
+  width: 250px;
+  background-color: #212529; /* Darker sidebar background */
+  padding: 15px;
+  border-right: 1px solid #3a3f42;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column; /* Arrange items in a column */
+  height: 100%; /* Ensure sidebar takes full height of its parent */
+  box-sizing: border-box; /* Include padding in height calculation */
+}
+
+#sidebar h2 {
+  color: #7e90a0;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#searchInput {
+  width: calc(100% - 2px); /* Adjusted to match note item width (100% of parent minus border) */
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #3a3f42;
+  border-radius: 5px;
+  background-color: #3a3f42;
+  color: #c8c8c8;
+  font-size: 0.9em;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#searchInput::placeholder {
+  color: #9e9e9e;
+}
+
+#searchInput:focus {
+  border-color: #5a67d8;
+  box-shadow: 0 0 0 2px rgba(90, 103, 216, 0.5); /* Subtle glow on focus */
+}
+
+#addNewNoteButton {
+  width: 100%;
+  padding: 10px;
+  margin-top: auto; /* Push the button to the bottom */
+  margin-bottom: 0; /* Remove default bottom margin */
+  background-color: #5a67d8; /* A pleasant blue/purple */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+}
+
+#addNewNoteButton:hover {
+  background-color: #434eaf;
+}
+
+#noteList {
+  flex-grow: 1; /* Allow note list to take remaining space */
+  overflow-y: auto; /* Make note list scrollable */
+  margin-bottom: 15px; /* Add some space above the button */
+}
+
+#main-content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: hidden; /* Main content itself doesn't scroll, editor/rendered content does */
+  background-color: #2f3437;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #9e9e9e;
+}
+
+.input-group input[type="text"],
+.input-group textarea {
+  width: calc(100% - 22px); /* Account for padding and border */
+  padding: 10px;
+  border: 1px solid #3a3f42;
+  border-radius: 5px;
+  font-size: 1em;
+  background-color: #3a3f42;
+  color: #c8c8c8;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.input-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* General button style, now mostly for sidebar add button */
+button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #5a67d8; /* A pleasant blue/purple */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #434eaf;
+}
+
+#noteList .note-item {
+  background-color: #2f3437;
+  border: 1px solid #3a3f42;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#noteList .note-item:hover {
+  background-color: #3a3f42;
+}
+
+#noteList .note-item.selected {
+  background-color: #4a5568; /* Highlight selected note */
+  border-color: #5a67d8;
+}
+
+#noteList .note-item h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #7e90a0;
+  font-size: 1.1em;
+}
+
+#noteList .note-item p {
+  font-size: 0.85em;
+  color: #9e9e9e;
+  margin-bottom: 0;
+  white-space: nowrap; /* Keep content on one line */
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
+}
+
+#selectedNoteDisplay {
+  background-color: #212529;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  display: flex; /* Use flexbox for header and content */
+  flex-direction: column;
+  height: 100%; /* Fill available height in main-content */
+  box-sizing: border-box;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #3a3f42;
+  padding-bottom: 10px;
+}
+
+#noteTitleContainer {
+  flex-grow: 1;
+}
+
+#displayNoteTitle {
+  color: #c8c8c8;
+  margin: 0;
+  cursor: pointer; /* Indicate it's clickable */
+}
+
+#editNoteTitleInput {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #5a67d8;
+  border-radius: 3px;
+  background-color: #3a3f42;
+  color: #c8c8c8;
+  font-size: 1.5em; /* Match h2 font size */
+  font-weight: bold;
+  box-sizing: border-box;
+}
+
+.note-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.note-actions button {
+  width: auto;
+  padding: 5px 10px;
+  font-size: 0.8em;
+  background-color: #dc3545; /* Red for delete */
+}
+
+.note-actions button:hover {
+  background-color: #c82333;
+}
+
+#renderedContent {
+  flex-grow: 1; /* Allow rendered content to take available space */
+  overflow-y: auto; /* Scroll for rendered content */
+  line-height: 1.6;
+  padding-right: 5px; /* Prevent scrollbar from overlapping content */
+}
+
+#renderedContent p {
+  margin-bottom: 1em;
+}
+
+#renderedContent h1, 
+#renderedContent h2, 
+#renderedContent h3, 
+#renderedContent h4, 
+#renderedContent h5, 
+#renderedContent h6 {
+  color: #7e90a0;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+}
+
+#renderedContent a {
+  color: #5a67d8;
+  text-decoration: none;
+}
+
+#renderedContent a:hover {
+  text-decoration: underline;
+}
+
+#renderedContent pre {
+  background-color: #1a1d1f;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+#renderedContent code {
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  color: #e06c75;
+}
+
+#renderedContent blockquote {
+  border-left: 4px solid #5a67d8;
+  padding-left: 10px;
+  margin-left: 0;
+  color: #9e9e9e;
+}
+
+#renderedContent ul,
+#renderedContent ol {
+  margin-left: 20px;
+}
+
+#renderedContent li {
+  margin-bottom: 5px;
+}
+
+#editContent {
+  flex-grow: 1; /* Allow editor to take available space */
+  min-height: 200px; /* Ensure it's visible */
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #3a3f42;
+  color: #c8c8c8;
+  border: 1px solid #5a67d8;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 1em;
+  resize: none; /* Prevent manual resizing, flexbox handles it */
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Loading Overlay Styles */
+#loadingOverlay {
+  position: fixed; /* Use fixed to cover entire viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#loadingOverlay.hidden {
+  display: none;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-left-color: #5a67d8;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#loadingOverlay p {
+  margin-top: 10px;
+  color: #c8c8c8;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #app-container {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    width: 100%;
+    height: 200px; /* Fixed height for sidebar on small screens */
+    border-right: none;
+    border-bottom: 1px solid #3a3f42;
+  }
+
+  #main-content {
+    padding: 15px;
+  }
+
+  #selectedNoteDisplay {
+    padding: 15px;
+  }
+}
