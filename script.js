@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
   
 
   // Remote SQL API Endpoints (replace with your actual endpoints)
-  const SQL_API_ENDPOINT = 'https://stirring-faun-45b7f8.netlify.app/';
+  // const SQL_API_ENDPOINT = 'https://stirring-faun-45b7f8.netlify.app/';
+  const SQL_API_ENDPOINT = 'https://php-run-js-post.netlify.app/';
   const DATABASE_URL = 'http://emuyobzniv.ccccocccc.cc';
 
   let allNotes = []; // Store all notes for internal linking and display
