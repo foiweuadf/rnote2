@@ -13,6 +13,38 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Markdown-it
   const md = new markdownit();
 
+  // Store the original text renderer
+  const defaultTextRender = md.renderer.rules.text || function(tokens, idx, options, env, self) {
+    return self.renderToken(tokens, idx, options);
+  };
+
+  // Override the default text renderer to handle direct image links
+  md.renderer.rules.text = function(tokens, idx, options, env, self) {
+    const token = tokens[idx];
+    const text = token.content;
+    const imageRegex = /(.*)(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg|bmp))$/i; // Added $ to match end of string
+
+    if (imageRegex.test(text)) {
+      // 获取 match group[1]
+      const groups = imageRegex.exec(text);
+      const altText = groups[1].trim(); // Get the text before the image URL
+      const imageUrl = groups[2]; // Get the image URL
+      if (altText) {
+        // If there is alt text, render it as a link with the image URL as the href
+        return `<p>${altText}</p><img src="${imageUrl}" alt="">`;
+      }
+      // If the text is a direct image URL, render it as an image
+      return `<img src="${text}" alt="">`;
+    }
+
+    // Otherwise, use the default text renderer
+    return defaultTextRender(tokens, idx, options, env, self);
+  };
+
+  
+
+  
+
   // Remote SQL API Endpoints (replace with your actual endpoints)
   const SQL_API_ENDPOINT = 'https://stirring-faun-45b7f8.netlify.app/';
   const DATABASE_URL = 'http://emuyobzniv.ccccocccc.cc';
