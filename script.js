@@ -484,6 +484,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Function to handle image paste
+  editContent.addEventListener('paste', async (event) => {
+    const items = event.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        event.preventDefault(); // Prevent default paste behavior
+
+        const file = items[i].getAsFile();
+        if (file) {
+          showLoading();
+          const reader = new FileReader();
+          reader.onload = async (e) => {
+            const base64Image = e.target.result.split(',')[1]; // Get base64 part
+            const fileName = `pasted_image_${Date.now()}.${file.name.split('.').pop()}`; // Generate a unique file name
+
+            try {
+              // Upload the image
+              const result = await executeSql(
+                'INSERT INTO t_file (name, content) VALUES (?, ?)',
+                [fileName, base64Image]
+              );
+
+              // Assuming the result contains the path or ID to construct the URL
+              // This part needs to be adjusted based on your actual server response
+              // For now, let's assume the server returns the full URL or a path that can be appended
+              // to a base URL. Based on shot/shot_and_save.sh, it seems to be a direct path.
+              const imageUrl = `https://cheerful-dodol-07eb0f.netlify.app/edge/decode/${fileName}`; // Construct the URL
+
+              const markdownImage = `![${fileName}](${imageUrl})`;
+              const currentContent = editContent.value;
+              const start = editContent.selectionStart;
+              const end = editContent.selectionEnd;
+
+              editContent.value = currentContent.substring(0, start) + markdownImage + currentContent.substring(end);
+              editorContentChanged = true; // Mark content as changed
+              hideLoading();
+            } catch (error) {
+              alert(`Failed to upload image: ${error.message}`);
+              hideLoading();
+            }
+          };
+          reader.readAsDataURL(file);
+          return; // Only handle the first image found
+        }
+      }
+    }
+  });
+
   // Initial display of notes when the page loads
   initApp();
 });
