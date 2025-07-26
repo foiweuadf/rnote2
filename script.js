@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Function to display a single selected note
-  async function selectNote(noteId) {
+  function selectNote(noteId) {
     const selectedNote = allNotes.find(note => note.id === noteId);
     if (selectedNote) {
       // Save current note content if changed before switching
@@ -174,35 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const newSelected = document.querySelector(`.note-item[data-note-id="${noteId}"]`);
       if (newSelected) {
         newSelected.classList.add('selected');
-      }
-
-      // Fetch the note again from the remote server to get the latest version
-      try {
-        const remoteNote = (await executeSql('SELECT id, title, content, ctime, mtime FROM notes WHERE id = ?', [noteId]))[0];
-        if (remoteNote) {
-          // Compare mtime and content/title
-          const localMtime = selectedNote.mtime || 0;
-          const remoteMtime = remoteNote.mtime || 0;
-
-          const hasLocalChanges = editorContentChanged || editorTitleChanged;
-
-          if (remoteMtime > localMtime || remoteNote.content !== selectedNote.content || remoteNote.title !== selectedNote.title) {
-            if (hasLocalChanges && !confirm('Remote version is newer or different. Discard local changes and load remote version?')) {
-              // User chose to keep local changes, do nothing and proceed with local data
-            } else {
-              // Update local selectedNote with remote data
-              selectedNote.title = remoteNote.title;
-              selectedNote.content = remoteNote.content;
-              selectedNote.mtime = remoteNote.mtime;
-              editorContentChanged = false; // Reset change flags as we are loading remote
-              editorTitleChanged = false;
-              alert('Loaded newer remote version.');
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching remote note for comparison:', error);
-        alert('Could not fetch latest remote version for comparison. Using local data.');
       }
 
       // Display title in view mode initially
@@ -384,8 +355,38 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Event listener for double-clicking on rendered content (switch to edit mode)
-  renderedContent.addEventListener('dblclick', () => {
+  renderedContent.addEventListener('dblclick', async () => { // Added async
     if (currentSelectedNoteId) {
+      // Re-fetch the note from the server
+      try {
+        const remoteNote = await executeSql(
+          'SELECT id, title, content, ctime, mtime FROM notes WHERE id = ?',
+          [currentSelectedNoteId]
+        );
+
+        if (remoteNote && remoteNote.length > 0) {
+          const fetchedNote = remoteNote[0];
+          const localNote = allNotes.find(note => note.id === currentSelectedNoteId);
+
+          if (localNote) {
+            // Compare content and modification time
+            if (fetchedNote.content !== localNote.content || fetchedNote.mtime > localNote.mtime) {
+              console.log('Remote note is newer or different. Updating local content.');
+              localNote.content = fetchedNote.content;
+              localNote.mtime = fetchedNote.mtime;
+              editContent.value = fetchedNote.content; // Update editor with remote content
+              editorContentChanged = false; // Reset flag as content is now synced with remote
+              alert('Note updated from server due to newer version or content difference.');
+            } else {
+              console.log('Local note is up-to-date or newer. Using local content.');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to re-fetch note on double-click:', error);
+        alert(`Failed to re-fetch note: ${error.message}. Using local version.`);
+      }
+
       renderedContent.classList.add('hidden');
       editContent.classList.remove('hidden');
       editContent.focus();
