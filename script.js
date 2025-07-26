@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Function to display a single selected note
-  function selectNote(noteId) {
+  async function selectNote(noteId) {
     const selectedNote = allNotes.find(note => note.id === noteId);
     if (selectedNote) {
       // Save current note content if changed before switching
