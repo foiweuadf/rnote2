@@ -176,6 +176,35 @@ document.addEventListener('DOMContentLoaded', () => {
         newSelected.classList.add('selected');
       }
 
+      // Fetch the note again from the remote server to get the latest version
+      try {
+        const remoteNote = (await executeSql('SELECT id, title, content, ctime, mtime FROM notes WHERE id = ?', [noteId]))[0];
+        if (remoteNote) {
+          // Compare mtime and content/title
+          const localMtime = selectedNote.mtime || 0;
+          const remoteMtime = remoteNote.mtime || 0;
+
+          const hasLocalChanges = editorContentChanged || editorTitleChanged;
+
+          if (remoteMtime > localMtime || remoteNote.content !== selectedNote.content || remoteNote.title !== selectedNote.title) {
+            if (hasLocalChanges && !confirm('Remote version is newer or different. Discard local changes and load remote version?')) {
+              // User chose to keep local changes, do nothing and proceed with local data
+            } else {
+              // Update local selectedNote with remote data
+              selectedNote.title = remoteNote.title;
+              selectedNote.content = remoteNote.content;
+              selectedNote.mtime = remoteNote.mtime;
+              editorContentChanged = false; // Reset change flags as we are loading remote
+              editorTitleChanged = false;
+              alert('Loaded newer remote version.');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching remote note for comparison:', error);
+        alert('Could not fetch latest remote version for comparison. Using local data.');
+      }
+
       // Display title in view mode initially
       displayNoteTitle.textContent = selectedNote.title || 'Untitled Note';
       editNoteTitleInput.value = selectedNote.title || 'Untitled Note';
